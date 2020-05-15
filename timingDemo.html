@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+   <meta charset="utf-8">
+   <title>takeFlight</title>
+      <script type="text/javascript">
+         var socket;
+         var localTime;
+         var WarningTrigger = new Boolean();
+         WarningTrigger =true;
+         var url = "ws://127.0.0.1:10011/test";
+         setInterval(sendLocalTime,1000)
+         if ("WebSocket" in window) {
+              var ws = new WebSocket(url);
+              socket = ws;
+              ws.onopen = function() {
+               console.log('连接成功');
+         };
+            ws.onmessage = function(evt) {
+            var received_msg = evt.data;
+            console.log(parseInt(received_msg))
+            //if( parseInt(received_msg) > 6 ){
+               //console.log("");
+            //}
+            //else {
+               document.getElementById("showMes").value+="来自服务器信息:"+received_msg+"\n";
+            //}
+         };
+            ws.onclose = function() {
+            alert("断开了连接");
+            };
+
+         } 
+
+         function sendTime(){
+              var mesg=document.getElementById("timettt").value;
+              socket.send(mesg);
+         }
+
+         function sendLocalTime(){
+            var localtime = new Date().toLocaleString();  
+            socket.send(localtime);
+         }
+
+         function sendTriggerStatus(){ 
+            var status = "status"+ WarningTrigger
+            socket.send(status);
+         }
+
+         function changeStaus(){
+            var info = false;
+            WarningTrigger?(infor="True"):(infor="False");
+            document.getElementById("triggerStatus").innerHTML="警铃状态:"+infor+"\n";
+            sendTriggerStatus();
+         }
+
+         function trigger(){
+              WarningTrigger = (!WarningTrigger);
+              console.log(WarningTrigger);
+              changeStaus();
+         }    
+</script>
+
+   </head>
+   <body>
+      <textarea rows="3" cols="3" id="showMes" style="width:500px;height:500px;">
+      </textarea></br>
+
+       <input type="text" id="timettt"/>
+       <button onclick="sendTime();">时间发送</button>
+      </br>
+      <Text>当前时间：</Text>
+      <div id="datetime">
+         <script>
+            setInterval("document.getElementById('datetime').innerHTML=new Date().toLocaleString();", 1000);
+         </script>
+         <input hidden="true">
+
+         </input>
+     </div>
+
+     <button onclick="trigger();">模拟警铃开关</button>
+     <p type="text" id="triggerStatus">模拟警铃状态:
+     </p>
+     </button><br>
+   </body>
+</html>
